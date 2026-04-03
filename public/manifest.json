@@ -1,0 +1,59 @@
+{
+  "name": "Appdemy — Tamil Nadu State Board Learning",
+  "short_name": "Appdemy",
+  "description": "Video lessons, quizzes, AI focus tracking & live doubt clearing for Samacheer Kalvi syllabus",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#FF4A13",
+  "categories": ["education"],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "My Lessons",
+      "url": "/learn",
+      "icons": [{"src": "/icons/icon-96.png", "sizes": "96x96"}]
+    },
+    {
+      "name": "Ask a Doubt",
+      "url": "/doubts",
+      "icons": [{"src": "/icons/icon-96.png", "sizes": "96x96"}]
+    }
+  ]
+}
