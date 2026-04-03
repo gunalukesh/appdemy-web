@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --brand-orange: #FF4A13;
+  --brand-clay: #B8563B;
+  --brand-blue: #A5BAC2;
+  --brand-grey: #E4E9EB;
+  --brand-granite: #292827;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  color: var(--brand-granite);
+  background: #FAFAFA;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--brand-grey); }
+::-webkit-scrollbar-thumb { background: var(--brand-blue); border-radius: 3px; }
+
+/* Video player overlay */
+.focus-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  background: rgba(41, 40, 39, 0.7);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Tamil font adjustment */
+[lang="ta"] {
+  font-family: 'Noto Sans Tamil', 'Inter', system-ui, sans-serif;
+}
