@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
-import Link from 'next/link$
+import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import { useAppStore } from '../../../lib/store'
 import { curriculum, progress, attention } from '../../../lib/supabase'
@@ -216,7 +216,8 @@ export default function LessonPlayerPage() {
               </div>
             </div>
           </div>
-        </main>
+        </div>
+      </main>
     </div>
-  
-)
+  )
+}
