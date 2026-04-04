@@ -2,7 +2,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
-import { useAppStore } from './lib/store'
+import { useAppStore } from '../lib/store'
 import { BookOpen, Video, Brain, MessageCircle, Shield, Globe, ChevronRight } from 'lucide-react'
 
 export default function LandingPage() {
@@ -26,12 +26,9 @@ export default function LandingPage() {
   ]
 
   const plans = [
-    { name: 'Monthly', price: '₹99',
-  period: '/month', desc: 'All subjects, all standards', popular: false },
-    { name: 'Annual', price: '₹799',
-  period: '/year', desc: 'Save ₹799 — best value', popular: true },
-    { name: 'Per Subject', price: '₹29',
-  period: '/subject/month', desc: 'Pick the subjects you need', popular: false },
+    { name: 'Monthly', price: '₹99', period: '/month', desc: 'All subjects, all standards', popular: false },
+    { name: 'Annual', price: '₹799', period: '/year', desc: 'Save ₹389 — best value', popular: true },
+    { name: 'Per Subject', price: '₹29', period: '/subject/month', desc: 'Pick the subjects you need', popular: false },
   ]
 
   return (
@@ -71,19 +68,19 @@ export default function LandingPage() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
-            onClick={(() => router.push('/auth'))}
+            onClick={() => router.push('/auth')}
             className="px-8 py-3.5 bg-brand-orange text-white rounded-xl font-bold text-base hover:bg-brand-clay transition-colors flex items-center justify-center gap-2"
-            >
-              Start Learning Free <ChevronRight className="w-5 h-5" />
+          >
+            Start Learning Free <ChevronRight className="w-5 h-5" />
           </button>
           <button
-            onClick={(() => router.push('/auth?role=teacher'))}
+            onClick={() => router.push('/auth?role=teacher')}
             className="px-8 py-3.5 border-2 border-brand-granite text-brand-granite rounded-xl font-bold text-base hover:bg-brand-grey transition-colors"
           >
             I&apos;m a Teacher
           </button>
         </div>
-        <p className="text-sm text-brand-blue mt-4">Free chapters available ‖ no credit card needed</p>
+        <p className="text-sm text-brand-blue mt-4">Free chapters available — no credit card needed</p>
       </section>
 
       {/* Features */}
@@ -169,7 +166,6 @@ export default function LandingPage() {
   )
 }
 
-
 function LangToggle() {
   const { lang, toggleLang } = useAppStore()
   const { i18n } = useTranslation()
@@ -185,7 +181,7 @@ function LangToggle() {
       onClick={handleToggle}
       className="px-3 py-2 text-sm font-medium text-brand-granite border border-brand-grey rounded-lg hover:bg-brand-grey transition-colors"
     >
-      {lang === 'en' ? 'தம达வ்'` : 'English'}
+      {lang === 'en' ? 'தமிழ்' : 'English'}
     </button>
   )
 }
