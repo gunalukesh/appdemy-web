@@ -1,25 +1,70 @@
 'use client'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useAppStore } from '../../lib/store'
+import { useRouter } from 'next/navigation'
+import { admin } from '../../lib/supabase'
 import StatCard from '../ui/StatCard'
-import { Shield, Activity, AlertTriangle, Server, Users, Layers } from 'lucide-react'
+import { Shield, Activity, AlertTriangle, Server, Users, Layers, BookOpen, Video, HelpCircle, ArrowRight } from 'lucide-react'
 
 export default function SuperAdminDashboard() {
   const { t } = useTranslation()
+  const router = useRouter()
+  const [stats, setStats] = useState(null)
+
+  useEffect(() => {
+    admin.getContentStats().then(setStats)
+  }, [])
 
   return (
     <div className="max-w-6xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-brand-granite">{t('platformHealth')}</h1>
-        <p className="text-sm text-brand-clay mt-1">System-wide monitoring and infrastructure</p>
+        <p className="text-sm text-brand-clay mt-1">System-wide monitoring and content management</p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard title={t('uptime')} value="99.97%" icon={Shield} />
-        <StatCard title={t('systemLoad')} value="34%" icon={Server} />
-        <StatCard title={t('errorRate')} value="0.02%" icon={AlertTriangle} trend={-15} />
-        <StatCard title="Active Connections" value="1,247" icon={Activity} />
-      </div>
+      {/* Content Stats from DB */}
+      {stats && (
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 mb-6">
+          <div className="bg-blue-50 rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-blue-700">{stats.standards}</p>
+            <p className="text-xs font-medium text-blue-600 mt-1">Standards</p>
+          </div>
+          <div className="bg-purple-50 rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-purple-700">{stats.subjects}</p>
+            <p className="text-xs font-medium text-purple-600 mt-1">Subjects</p>
+          </div>
+          <div className="bg-orange-50 rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-orange-700">{stats.chapters}</p>
+            <p className="text-xs font-medium text-orange-600 mt-1">Chapters</p>
+          </div>
+          <div className="bg-green-50 rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-green-700">{stats.lessons}</p>
+            <p className="text-xs font-medium text-green-600 mt-1">Lessons</p>
+          </div>
+          <div className="bg-pink-50 rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-pink-700">{stats.questions}</p>
+            <p className="text-xs font-medium text-pink-600 mt-1">Questions</p>
+          </div>
+          <div className="bg-gray-50 rounded-xl p-4 text-center">
+            <p className="text-2xl font-bold text-gray-700">{stats.users}</p>
+            <p className="text-xs font-medium text-gray-600 mt-1">Users</p>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Action: Content Management */}
+      <button
+        onClick={() => router.push('/admin/content')}
+        className="w-full bg-brand-granite rounded-xl p-6 text-left text-white mb-6 hover:bg-brand-granite/90 transition-colors group"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-bold text-lg">Content Management Panel</h2>
+            <p className="text-sm text-brand-blue mt-1">Manage standards, subjects, chapters, video lessons & quiz questions</p>
+          </div>
+          <ArrowRight className="w-6 h-6 text-brand-orange group-hover:translate-x-1 transition-transform" />
+        </div>
+      </button>
 
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         {/* Infrastructure */}
@@ -30,7 +75,6 @@ export default function SuperAdminDashboard() {
               { name: 'Vercel (Frontend)', status: 'healthy', latency: '45ms', region: 'Mumbai' },
               { name: 'Supabase (Database)', status: 'healthy', latency: '12ms', region: 'Mumbai' },
               { name: 'Supabase (Storage)', status: 'healthy', latency: '89ms', region: 'Mumbai' },
-              { name: 'Razorpay (Payments)', status: 'healthy', latency: '156ms', region: 'India' },
               { name: 'Supabase (Realtime)', status: 'healthy', latency: '23ms', region: 'Mumbai' },
             ].map((svc, i) => (
               <div key={i} className="flex items-center justify-between py-2 border-b border-brand-grey last:border-0">
@@ -47,41 +91,25 @@ export default function SuperAdminDashboard() {
           </div>
         </div>
 
-        {/* Role Distribution */}
+        {/* Monthly Cost */}
         <div className="bg-white rounded-xl border border-brand-grey p-6">
-          <h2 className="font-bold text-brand-granite mb-4">User Distribution</h2>
-          <div className="space-y-3">
-            {[
-              { role: 'Students', count: 4832, color: 'bg-brand-orange' },
-              { role: 'Parents', count: 3100, color: 'bg-brand-blue' },
-              { role: 'Teachers', count: 45, color: 'bg-brand-clay' },
-              { role: 'Content Managers', count: 8, color: 'bg-green-500' },
-              { role: 'Admins', count: 3, color: 'bg-brand-granite' },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${item.color}`} />
-                <span className="text-sm text-brand-granite flex-1">{item.role}</span>
-                <span className="text-sm font-bold text-brand-granite">{item.count.toLocaleString()}</span>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-brand-grey">
-            <h3 className="font-medium text-brand-granite text-sm mb-2">Monthly Cost</h3>
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="bg-brand-grey/50 rounded-lg p-2">
-                <p className="font-bold text-brand-granite">₹0</p>
-                <p className="text-xs text-brand-clay">Vercel</p>
-              </div>
-              <div className="bg-brand-grey/50 rounded-lg p-2">
-                <p className="font-bold text-brand-granite">₹0</p>
-                <p className="text-xs text-brand-clay">Supabase</p>
-              </div>
-              <div className="bg-brand-grey/50 rounded-lg p-2">
-                <p className="font-bold text-brand-granite">2%</p>
-                <p className="text-xs text-brand-clay">Razorpay</p>
-              </div>
+          <h2 className="font-bold text-brand-granite mb-4">Monthly Cost</h2>
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="bg-brand-grey/50 rounded-lg p-4">
+              <p className="font-bold text-2xl text-brand-granite">₹0</p>
+              <p className="text-xs text-brand-clay mt-1">Vercel (Free)</p>
             </div>
+            <div className="bg-brand-grey/50 rounded-lg p-4">
+              <p className="font-bold text-2xl text-brand-granite">₹0</p>
+              <p className="text-xs text-brand-clay mt-1">Supabase (Free)</p>
+            </div>
+            <div className="bg-brand-grey/50 rounded-lg p-4">
+              <p className="font-bold text-2xl text-brand-granite">₹899</p>
+              <p className="text-xs text-brand-clay mt-1">Domain (GoDaddy)</p>
+            </div>
+          </div>
+          <div className="mt-4 p-3 bg-green-50 rounded-lg">
+            <p className="text-sm text-green-700 font-medium text-center">Total: ~₹75/month (domain cost only)</p>
           </div>
         </div>
       </div>

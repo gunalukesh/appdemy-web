@@ -36,15 +36,14 @@ const NAV_ITEMS = {
   ],
   content_mgr: [
     { href: '/dashboard', icon: Home, label: 'dashboard' },
-    { href: '/content-mgr/videos', icon: Video, label: 'content' },
-    { href: '/content-mgr/quizzes', icon: FileText, label: 'quizzes' },
+    { href: '/admin/content', icon: Layers, label: 'content' },
     { href: '/content-mgr/review', icon: Shield, label: 'pendingReview' },
   ],
   super_admin: [
     { href: '/dashboard', icon: Home, label: 'dashboard' },
+    { href: '/admin/content', icon: Layers, label: 'content' },
     { href: '/admin/users', icon: Users, label: 'users' },
     { href: '/admin/analytics', icon: BarChart2, label: 'analytics' },
-    { href: '/admin/revenue', icon: Layers, label: 'revenue' },
     { href: '/super-admin/system', icon: Shield, label: 'platformHealth' },
     { href: '/admin/settings', icon: Settings, label: 'settings' },
   ],
