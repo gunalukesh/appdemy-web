@@ -1,10 +1,10 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { admin, curriculum } from '../../../lib/supabase'
+import { admin, curriculum, storage } from '../../../lib/supabase'
 import {
   Layers, BookOpen, FileText, Video, HelpCircle,
   Plus, Pencil, Trash2, ChevronRight, ChevronDown,
-  Save, X, ArrowLeft, AlertCircle, Check, Loader2
+  Save, X, ArrowLeft, AlertCircle, Check, Loader2, Upload, Image
 } from 'lucide-react'
 
 // ─── Tabs ────────────────────────────────────────────────
@@ -352,7 +352,7 @@ function SubjectForm({ initial, onSave, onCancel }) {
           <div className="flex-1">
             <label className="block text-xs font-medium text-brand-clay mb-1">Icon (emoji)</label>
             <input value={form.icon} onChange={e => setForm({ ...form, icon: e.target.value })}
-              className="w-full px-3 py-2 border border-brand-grey rounded-lg text-sm" placeholder="🐐" />
+              className="w-full px-3 py-2 border border-brand-grey rounded-lg text-sm" placeholder="📐" />
           </div>
           <div className="w-24">
             <label className="block text-xs font-medium text-brand-clay mb-1">Sort Order</label>
@@ -515,7 +515,7 @@ function ChapterForm({ initial, onSave, onCancel }) {
         <div>
           <label className="block text-xs font-medium text-brand-clay mb-1">Title (Tamil)</label>
           <input value={form.title_ta} onChange={e => setForm({ ...form, title_ta: e.target.value })}
-            className="w-full px-3 py-2 border border-brand-grey rounded-lg text-sm" placeholder="பல்லுறுப்னுக்கோவை" />
+            className="w-full px-3 py-2 border border-brand-grey rounded-lg text-sm" placeholder="பல்லுறுப்புக்கோவை" />
         </div>
         <div>
           <label className="block text-xs font-medium text-brand-clay mb-1">Description (English)</label>
@@ -661,6 +661,7 @@ function LessonsTab({ selectedStandard, selectedSubject, showToast }) {
           {showForm && (
             <LessonForm
               initial={editingLesson}
+              chapterId={selectedChapter.id}
               onSave={handleSave}
               onCancel={() => { setShowForm(false); setEditingLesson(null) }}
             />
@@ -716,7 +717,7 @@ function LessonsTab({ selectedStandard, selectedSubject, showToast }) {
   )
 }
 
-function LessonForm({ initial, onSave, onCancel }) {
+function LessonForm({ initial, chapterId, onSave, onCancel }) {
   const [form, setForm] = useState({
     number: initial?.number || 1,
     title_en: initial?.title_en || '',
@@ -725,11 +726,35 @@ function LessonForm({ initial, onSave, onCancel }) {
     duration_seconds: initial?.duration_seconds || 600,
     video_url: initial?.video_url || '',
     thumbnail_url: initial?.thumbnail_url || '',
+    material_url: initial?.material_url || '',
     sort_order: initial?.sort_order || 1,
     status: initial?.status || 'draft',
     ...(initial?.id ? { id: initial.id } : {}),
   })
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(null)
+
+  const handleFileUpload = async (file, type) => {
+    if (!file) return
+    setUploading(type)
+    try {
+      let result
+      if (type === 'video') {
+        result = await storage.uploadVideo(file, chapterId, form.number)
+        if (result.url) setForm(f => ({ ...f, video_url: result.url }))
+      } else if (type === 'thumbnail') {
+        result = await storage.uploadThumbnail(file, chapterId, form.number)
+        if (result.url) setForm(f => ({ ...f, thumbnail_url: result.url }))
+      } else if (type === 'material') {
+        result = await storage.uploadLessonMaterial(file, chapterId, form.number)
+        if (result.url) setForm(f => ({ ...f, material_url: result.url }))
+      }
+      if (result?.error) alert('Upload failed: ' + result.error.message)
+    } catch (err) {
+      alert('Upload error: ' + err.message)
+    }
+    setUploading(null)
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -753,14 +778,45 @@ function LessonForm({ initial, onSave, onCancel }) {
             className="w-full px-3 py-2 border border-brand-grey rounded-lg text-sm" />
         </div>
         <div>
-          <label className="block text-xs font-medium text-brand-clay mb-1">Video URL*</label>
-          <input required value={form.video_url} onChange={e => setForm({ ...form, video_url: e.target.value })}
-            className="w-full px-3 py-2 border border-brand-grey rounded-lg text-sm" placeholder="https://youtube.com/watch?v=..." />
+          <label className="block text-xs font-medium text-brand-clay mb-1">Video URL or Upload</label>
+          <div className="flex gap-2">
+            <input value={form.video_url} onChange={e => setForm({ ...form, video_url: e.target.value })}
+              className="flex-1 px-3 py-2 border border-brand-grey rounded-lg text-sm" placeholder="https://youtube.com/watch?v= or upload" />
+            <label className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer transition-colors ${uploading === 'video' ? 'bg-gray-300 text-gray-500' : 'bg-brand-orange text-white hover:bg-brand-clay'}`}>
+              {uploading === 'video' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              <span className="hidden sm:inline">{uploading === 'video' ? 'Uploading...' : 'Upload'}</span>
+              <input type="file" accept="video/*" className="hidden" disabled={!!uploading}
+                onChange={e => handleFileUpload(e.target.files[0], 'video')} />
+            </label>
+          </div>
+          {form.video_url && <p className="text-xs text-green-600 mt-1 truncate">Set: {form.video_url}</p>}
         </div>
         <div>
-          <label className="block text-xs font-medium text-brand-clay mb-1">Thumbnail URL</label>
-          <input value={form.thumbnail_url} onChange={e => setForm({ ...form, thumbnail_url: e.target.value })}
-            className="w-full px-3 py-2 border border-brand-grey rounded-lg text-sm" placeholder="https://..." />
+          <label className="block text-xs font-medium text-brand-clay mb-1">Thumbnail</label>
+          <div className="flex gap-2">
+            <input value={form.thumbnail_url} onChange={e => setForm({ ...form, thumbnail_url: e.target.value })}
+              className="flex-1 px-3 py-2 border border-brand-grey rounded-lg text-sm" placeholder="https://... or upload" />
+            <label className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer transition-colors ${uploading === 'thumbnail' ? 'bg-gray-300 text-gray-500' : 'bg-brand-orange text-white hover:bg-brand-clay'}`}>
+              {uploading === 'thumbnail' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              <input type="file" accept="image/*" className="hidden" disabled={!!uploading}
+                onChange={e => handleFileUpload(e.target.files[0], 'thumbnail')} />
+            </label>
+          </div>
+          {form.thumbnail_url && <img src={form.thumbnail_url} alt="" className="mt-1 h-16 rounded border object-cover" />}
+        </div>
+        <div className="md:col-span-2">
+          <label className="block text-xs font-medium text-brand-clay mb-1">Lesson Material (PDF / Doc)</label>
+          <div className="flex gap-2">
+            <input value={form.material_url} onChange={e => setForm({ ...form, material_url: e.target.value })}
+              className="flex-1 px-3 py-2 border border-brand-grey rounded-lg text-sm" placeholder="https://... or upload PDF/doc" />
+            <label className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer transition-colors ${uploading === 'material' ? 'bg-gray-300 text-gray-500' : 'bg-brand-orange text-white hover:bg-brand-clay'}`}>
+              {uploading === 'material' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              <span className="hidden sm:inline">{uploading === 'material' ? 'Uploading...' : 'Upload'}</span>
+              <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx" className="hidden" disabled={!!uploading}
+                onChange={e => handleFileUpload(e.target.files[0], 'material')} />
+            </label>
+          </div>
+          {form.material_url && <p className="text-xs text-green-600 mt-1 truncate">Material: {form.material_url}</p>}
         </div>
         <div className="flex gap-4">
           <div className="flex-1">
@@ -804,7 +860,7 @@ function LessonForm({ initial, onSave, onCancel }) {
       </div>
       <div className="flex gap-2 justify-end">
         <button type="button" onClick={onCancel} className="px-4 py-2 text-sm text-brand-clay hover:bg-brand-grey rounded-lg">Cancel</button>
-        <button type="submit" disabled={saving}
+        <button type="submit" disabled={saving || !!uploading}
           className="flex items-center gap-2 px-4 py-2 bg-brand-orange text-white rounded-lg text-sm font-medium hover:bg-brand-clay disabled:opacity-50">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {initial ? 'Update' : 'Create'}
@@ -917,6 +973,7 @@ function QuestionsTab({ selectedStandard, selectedSubject, showToast }) {
           {showForm && (
             <QuestionForm
               initial={editingQuestion}
+              chapterId={selectedChapter.id}
               onSave={handleSave}
               onCancel={() => { setShowForm(false); setEditingQuestion(null) }}
             />
@@ -980,7 +1037,7 @@ function QuestionsTab({ selectedStandard, selectedSubject, showToast }) {
   )
 }
 
-function QuestionForm({ initial, onSave, onCancel }) {
+function QuestionForm({ initial, chapterId, onSave, onCancel }) {
   const parseOptions = (opts) => {
     if (!opts || !Array.isArray(opts)) return ['', '', '', '']
     return opts.map(o => typeof o === 'object' ? (o.en || o.text || '') : String(o))
@@ -994,10 +1051,25 @@ function QuestionForm({ initial, onSave, onCancel }) {
     explanation_en: initial?.explanation_en || '',
     explanation_ta: initial?.explanation_ta || '',
     difficulty: initial?.difficulty || 1,
+    image_url: initial?.image_url || '',
     ...(initial?.id ? { id: initial.id } : {}),
   })
   const [options, setOptions] = useState(parseOptions(initial?.options_json))
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
+
+  const handleImageUpload = async (file) => {
+    if (!file) return
+    setUploading(true)
+    try {
+      const result = await storage.uploadQuestionImage(file, chapterId, Date.now())
+      if (result.url) setForm(f => ({ ...f, image_url: result.url }))
+      if (result.error) alert('Upload failed: ' + result.error.message)
+    } catch (err) {
+      alert('Upload error: ' + err.message)
+    }
+    setUploading(false)
+  }
 
   const updateOption = (idx, val) => {
     const newOpts = [...options]
@@ -1028,6 +1100,25 @@ function QuestionForm({ initial, onSave, onCancel }) {
           <label className="block text-xs font-medium text-brand-clay mb-1">Question (Tamil)</label>
           <textarea value={form.question_ta} onChange={e => setForm({ ...form, question_ta: e.target.value })}
             className="w-full px-3 py-2 border border-brand-grey rounded-lg text-sm" rows={2} />
+        </div>
+        <div className="md:col-span-2">
+          <label className="block text-xs font-medium text-brand-clay mb-1">Question Image (diagram, figure, etc.)</label>
+          <div className="flex gap-2 items-center">
+            <input value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })}
+              className="flex-1 px-3 py-2 border border-brand-grey rounded-lg text-sm" placeholder="https://... or upload image" />
+            <label className={`flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium cursor-pointer transition-colors ${uploading ? 'bg-gray-300 text-gray-500' : 'bg-brand-orange text-white hover:bg-brand-clay'}`}>
+              {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />}
+              <span className="hidden sm:inline">{uploading ? 'Uploading...' : 'Upload'}</span>
+              <input type="file" accept="image/*" className="hidden" disabled={uploading}
+                onChange={e => handleImageUpload(e.target.files[0])} />
+            </label>
+            {form.image_url && (
+              <button type="button" onClick={() => setForm({ ...form, image_url: '' })} className="text-red-400 hover:text-red-600">
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          {form.image_url && <img src={form.image_url} alt="Question" className="mt-2 max-h-32 rounded border object-contain" />}
         </div>
       </div>
 
@@ -1084,7 +1175,7 @@ function QuestionForm({ initial, onSave, onCancel }) {
 
       <div className="flex gap-2 justify-end">
         <button type="button" onClick={onCancel} className="px-4 py-2 text-sm text-brand-clay hover:bg-brand-grey rounded-lg">Cancel</button>
-        <button type="submit" disabled={saving}
+        <button type="submit" disabled={saving || uploading}
           className="flex items-center gap-2 px-4 py-2 bg-brand-orange text-white rounded-lg text-sm font-medium hover:bg-brand-clay disabled:opacity-50">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {initial ? 'Update' : 'Create'}
