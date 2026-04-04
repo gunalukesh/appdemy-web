@@ -128,7 +128,7 @@ export default function AnalyticsPage() {
                     <div className="text-xs text-gray-500">Lessons</div>
                   </div>
                   <div>
-                    <div className="text-lg font-bold text-purple-600">{[data.questions}</div>
+                    <div className="text-lg font-bold text-purple-600">{data.questions}</div>
                     <div className="text-xs text-gray-500">Questions</div>
                   </div>
                 </div>
@@ -136,11 +136,11 @@ export default function AnalyticsPage() {
                 <div className="mt-3">
                   <div className="flex justify-between text-xs text-gray-500 mb-1">
                     <span>Content completeness</span>
-                    <span>{[data.lessons > 0 ? Math.round((data.lessons / Math.max(data.chapters, 1)) * 100) : 0}%</span>
+                    <span>{data.lessons > 0 ? Math.round((data.lessons / Math.max(data.chapters, 1)) * 100) : 0}%</span>
                   </div>
                   <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                     <div className="h-full bg-brand-orange rounded-full transition-all"
-                         style={{ width: `${[data.lessons > 0 ? Math.min(100, Math.round((data.lessons / Math.max(data.chapters, 1)) * 100)) : 0}%` }} />
+                         style={{ width: `${data.lessons > 0 ? Math.min(100, Math.round((data.lessons / Math.max(data.chapters, 1)) * 100)) : 0}%` }} />
                   </div>
                 </div>
               </div>
@@ -154,7 +154,7 @@ export default function AnalyticsPage() {
         {/* Recent Signups */}
         <div className="bg-white rounded-xl border p-6">
           <h2 className="text-lg font-semibold text-brand-granite mb-4">Recent Signups</h2>
-             <div className="space-y-3">
+          <div className="space-y-3">
             {recentUsers.map(user => (
               <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
@@ -169,7 +169,7 @@ export default function AnalyticsPage() {
                 <div className="text-xs text-gray-400">
                   {user.created_at ? new Date(user.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—'}
                 </div>
-              </diw>
+              </div>
             ))}
             {recentUsers.length === 0 && (
               <p className="text-gray-400 text-center py-8">No users yet</p>

@@ -27,8 +27,10 @@ function Toast({ message, type, onClose }) {
     <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`}>
       {message}
     </div>
-  
-)&J+—function UsersPage() {
+  )
+}
+
+export default function UsersPage() {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -90,7 +92,7 @@ function Toast({ message, type, onClose }) {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      { toast && <Toast {...toast} onClose={() => setToast(null)} />}
+      {toast && <Toast {...toast} onClose={() => setToast(null)} />}
 
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-brand-granite">User Management</h1>
@@ -107,10 +109,11 @@ function Toast({ message, type, onClose }) {
           <div key={role} className={`rounded-xl p-4 text-center cursor-pointer border transition-all ${roleFilter === role ? 'ring-2 ring-brand-orange' : ''}`}
                onClick={() => setRoleFilter(roleFilter === role ? 'all' : role)}>
             <div className="text-2xl font-bold">{stats[role] || 0}</div>
-            <div className="text-xs text-gray-500 mt-1 capitalize">{bole.replace('_', ' ')}</div>
+            <div className="text-xs text-gray-500 mt-1 capitalize">{role.replace('_', ' ')}</div>
           </div>
         ))}
       </div>
+
       {/* Search & Filter */}
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1">
@@ -138,7 +141,7 @@ function Toast({ message, type, onClose }) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr  className="bg-gray-50 border-b">
+              <tr className="bg-gray-50 border-b">
                 <th className="text-left px-4 py-3 font-medium text-gray-600">User</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Phone</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Role</th>
@@ -157,7 +160,7 @@ function Toast({ message, type, onClose }) {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-brand-orange/10 flex items-center justify-center text-brand-orange font-bold text-sm">
-                          {((user.full_name || '?')[0].toUpperCase()}
+                          {(user.full_name || '?')[0].toUpperCase()}
                         </div>
                         <div>
                           <div className="font-medium text-brand-granite">{user.full_name || 'Unnamed'}</div>
@@ -171,34 +174,34 @@ function Toast({ message, type, onClose }) {
                         <div className="flex items-center gap-2">
                           <select value={newRole} onChange={e => setNewRole(e.target.value)}
                             className="text-xs border rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-brand-orange">
-                            {ROLES.map(r => <option key={r} value={r}>{[replace('_', ' ')}</option>)}
-                </select>
-                <button onClick={() => updateRole(user.id, newRole)} className="text-green-600 hover:text-green-700"><Check className="w-4 h-4" /></button>
-                <button onClick={() => setEditingUser(null)} className="text-red-500 hover:text-red-600"><X className="w-4 h-4" /></button>
-                </div>
-                ) : (
-                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${ROLE_COLORS[user.role] || 'bg-gray-100 text-gray-600'}`}>
-                    <RIcon className="w-3 h-3" />
-                    {((user.role || 'unknown').replace('_', ' ')}
-                  </span>
-                )}
-              </td>
-              <td className="px-4 py-3 text-gray-600">{user.standard ? `${user.standard}th` : 'ₔ }</td>
-              <td className="px-4 py-3 text-gray-500 text-xs">
-                 {user.created_at ? new Date(user.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
-              </td>
-              <td className="px-4 py-3">
-                <button
-                  onClick={() => { setEditingUser(user.id); setNewRole(user.role || 'student') }}
-                  className="text-brand-orange hover:text-orange-700 text-xs font-medium"
-                >
-                  Change Role
-                </button>
-              </td>
-            </tr>
-            )
-            })}
-          </tbody>
+                            {ROLES.map(r => <option key={r} value={r}>{r.replace('_', ' ')}</option>)}
+                          </select>
+                          <button onClick={() => updateRole(user.id, newRole)} className="text-green-600 hover:text-green-700"><Check className="w-4 h-4" /></button>
+                          <button onClick={() => setEditingUser(null)} className="text-red-500 hover:text-red-600"><X className="w-4 h-4" /></button>
+                        </div>
+                      ) : (
+                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${ROLE_COLORS[user.role] || 'bg-gray-100 text-gray-600'}`}>
+                          <RIcon className="w-3 h-3" />
+                          {(user.role || 'unknown').replace('_', ' ')}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">{user.standard ? `${user.standard}th` : '—'}</td>
+                    <td className="px-4 py-3 text-gray-500 text-xs">
+                      {user.created_at ? new Date(user.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => { setEditingUser(user.id); setNewRole(user.role || 'student') }}
+                        className="text-brand-orange hover:text-orange-700 text-xs font-medium"
+                      >
+                        Change Role
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
           </table>
         </div>
         <div className="px-4 py-3 bg-gray-50 border-t text-sm text-gray-500">
